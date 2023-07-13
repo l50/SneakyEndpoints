@@ -1,7 +1,3 @@
-output "transfer_bucket_name" {
-  value = aws_s3_bucket.sneakyendpoints_transfer_bucket.id
-}
-
 output "sneakendpoints_host_id" {
   value = aws_instance.sneakyendpoints_host.id
 }
