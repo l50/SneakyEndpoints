@@ -1,5 +1,5 @@
 resource "aws_instance" "sneakyendpoints_host" {
-  ami                    = data.aws_ami.amazon_linux_ami.id
+  ami                    = data.aws_ami.base_ami.id
   instance_type          = "t3.small"
   subnet_id              = aws_subnet.sneakyendpoints_private_subnet.id
   vpc_security_group_ids = [aws_security_group.allow_https.id]
@@ -48,13 +48,19 @@ resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
-data "aws_ami" "amazon_linux_ami" {
+data "aws_ami" "base_ami" {
   most_recent = true
-
-  owners = ["amazon"]
-
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+    values = [var.base_ami_filter_value]
   }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+  owners = [var.base_ami_owner_id]
 }
