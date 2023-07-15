@@ -9,11 +9,9 @@ resource "aws_instance" "sneakyendpoints_host" {
     aws_vpc_endpoint.ec2messages_vpce,
     aws_vpc_endpoint.ssmmessages_vpce,
     aws_vpc_endpoint.ssm_vpce,
-    aws_vpc_endpoint.s3_vpce,
     aws_vpc_endpoint_subnet_association.ec2messages_vpce_association,
     aws_vpc_endpoint_subnet_association.ssmmessages_vpce_association,
     aws_vpc_endpoint_subnet_association.ssm_vpce_association,
-    aws_vpc_endpoint_route_table_association.s3_vpce_association,
     aws_iam_instance_profile.sneakyendpoints_profile,
   ]
 
