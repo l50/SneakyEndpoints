@@ -19,6 +19,33 @@ resource "aws_subnet" "sneakyendpoints_private_subnet" {
   }
 }
 
+resource "aws_internet_gateway" "sneakyendpoints_igw" {
+  vpc_id = aws_vpc.sneakyendpoints_vpc.id
+
+  tags = {
+    Name = "sneakyendpoints_internet_gateway"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.sneakyendpoints_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.sneakyendpoints_igw.id
+  }
+  
+  tags = {
+    Name = "sneakyendpoints_public_route_table"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.sneakyendpoints_public_subnet.id
+  route_table_id = aws_route_table.public.id
+}
+
+
 resource "aws_route_table" "sneakyendpoints_route_table" {
   vpc_id = aws_vpc.sneakyendpoints_vpc.id
 
@@ -57,5 +84,39 @@ resource "aws_security_group" "allow_https" {
 
   tags = {
     Name = "allow_https"
+  }
+}
+
+resource "aws_eip" "nat" {
+  vpc = true
+}
+
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.sneakyendpoints_public_subnet.id
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.sneakyendpoints_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  subnet_id      = aws_subnet.sneakyendpoints_private_subnet.id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_subnet" "sneakyendpoints_public_subnet" {
+  vpc_id                  = aws_vpc.sneakyendpoints_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "${var.region}a"
+
+  tags = {
+    Name = "sneakyendpoints_public_subnet"
   }
 }

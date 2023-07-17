@@ -36,16 +36,28 @@ resource "aws_iam_role" "sneakyendpoints_role" {
       }
     ]
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_iam_instance_profile" "sneakyendpoints_profile" {
   name = "sneakyendpoints_instance_profile"
   role = aws_iam_role.sneakyendpoints_role.name
+   
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
   role       = aws_iam_role.sneakyendpoints_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 data "aws_ami" "base_ami" {
